@@ -38,9 +38,17 @@ walk_left = [
 player_anim_count = 0
 # счетчик для прокручивания фона
 bg_x = 0
+# скорость передвижения игрока
+player_speed = 5
+# начальные коры игрока
+player_x = 150
+player_y = 460
+
+is_jump = False
+jump_count = 7
 
 bg_sound = pygame.mixer.Sound('music/bg.mp3')
-bg_sound.play()
+# bg_sound.play()
 #процесс игры
 running = True
 while running:
@@ -48,8 +56,41 @@ while running:
     screen.blit(bg, (bg_x, 0))
     # при окончании первого фона, запускается этот
     screen.blit(bg, (bg_x + width, 0))
-    # персонаж с бегом вправо
-    screen.blit(walk_right[player_anim_count], (500, 460))
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT]:
+        # персонаж с бегом вправо
+        screen.blit(walk_left[player_anim_count], (player_x, player_y))
+    else:
+        # персонаж с бегом влево
+        screen.blit(walk_right[player_anim_count], (player_x, player_y))
+    #прыгание персонажа
+    # если сейчас не прыгает и зажали пробел то начинается прыжок
+    if not is_jump:
+        if keys[pygame.K_SPACE]:
+            is_jump = True
+    else:
+        # логика такая, в начале двигаемся вверх пока положительное число
+        # потом падаем вниз когда отрицательное
+        # потом убираем прыжок и ставим счетчику дефолт
+        if jump_count >= -7:
+            if jump_count > 0:
+                player_y -= (jump_count**2)/2
+            else:
+                player_y += (jump_count**2)/2
+
+            jump_count-=1
+        else:
+            is_jump = False
+            jump_count = 7
+
+    # else:
+    #     screen.blit(player_center, (player_x, player_y))
+
+    if keys[pygame.K_LEFT] and player_x > 50:
+        player_x -= player_speed
+    elif keys[pygame.K_RIGHT] and player_x < width-50:
+        player_x += player_speed
+
     player_anim_count += 1
     # сдвиг фона
     bg_x -= 1
